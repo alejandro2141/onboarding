@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración de Recursos Humanos</title>
+    
+    <!-- Vue 3 CDN -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Iconos FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        [v-cloak] { display: none; }
+    </style>
+</head>
+<body class="bg-slate-100 font-sans text-slate-800 antialiased">
+
+<div id="app" v-cloak class="min-h-screen flex flex-col md:flex-row">
+
+    <!-- BARRA LATERAL DE NAVEGACIÓN -->
+    <aside class="w-full md:w-64 bg-slate-900 text-slate-100 flex-shrink-0">
+        <div class="p-5 flex items-center gap-3 border-b border-slate-800">
+            <i class="fa-solid fa-users-gear text-2xl text-indigo-400"></i>
+            <span class="font-bold text-lg tracking-wide">Portal RRHH</span>
+        </div>
+        
+        <nav class="p-4 space-y-1">
+            <button @click="currentTab = 'dashboard'" :class="navClass('dashboard')">
+                <i class="fa-solid fa-chart-pie w-5"></i> Dashboard
+            </button>
+            <button @click="currentTab = 'employees'" :class="navClass('employees')">
+                <i class="fa-solid fa-id-card w-5"></i> Empleados
+            </button>
+            <button @click="currentTab = 'leaves'" :class="navClass('leaves')">
+                <i class="fa-solid fa-calendar-check w-5"></i> Vacaciones y Permisos
+                <span v-if="pendingLeavesCount > 0" class="ml-auto bg-amber-500 text-xs text-white px-2 py-0.5 rounded-full font-bold">
+                    {{ pendingLeavesCount }}
+                </span>
+            </button>
+            <button @click="currentTab = 'attendance'" :class="navClass('attendance')">
+                <i class="fa-solid fa-clock w-5"></i> Asistencia
+            </button>
+            <button @click="currentTab = 'payroll'" :class="navClass('payroll')">
+                <i class="fa-solid fa-file-invoice-dollar w-5"></i> Nómina
+            </button>
+            
+            <!-- NUEVA SECCIÓN: PERFILES DE INTEGRACIÓN -->
+            <button @click="currentTab = 'profiles'" :class="navClass('profiles')">
+                <i class="fa-solid fa-user-shield w-5"></i> Perfiles API
+            </button>
+        </nav>
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="flex-1 flex flex-col min-w-0 overflow-hidden">
+        
+        <!-- ENCABEZADO SUPERIOR -->
+        <header class="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center shadow-sm">
+            <h1 class="text-xl font-bold text-slate-800 capitalize">{{ currentTabTitle }}</h1>
+            <div class="flex items-center gap-4">
+                <div class="text-right text-xs">
+                    <p class="font-bold text-slate-700">Administrador RRHH</p>
+                    <p class="text-slate-400">admin@empresa.com</p>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold shadow">
+                    AD
+                </div>
+            </div>
+        </header>
+
+        <!-- SECCIÓN DINÁMICA DE CONTENIDO -->
+        <div class="p-6 overflow-y-auto flex-1">
+
+            <!-- 1. DASHBOARD GENERAL -->
+            <div v-if="currentTab === 'dashboard'" class="space-y-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
+                        <div class="p-3 bg-indigo-100 text-indigo-600 rounded-lg"><i class="fa-solid fa-users text-xl"></i></div>
+                        <div>
+                            <p class="text-xs text-slate-500 font-semibold uppercase">Total Empleados</p>
+                            <p class="text-2xl font-extrabold text-slate-800">{{ employees.length }}</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
+                        <div class="p-3 bg-amber-100 text-amber-600 rounded-lg"><i class="fa-solid fa-plane-departure text-xl"></i></div>
+                        <div>
+                            <p class="text-xs text-slate-500 font-semibold uppercase">Permisos Pendientes</p>
+                            <p class="text-2xl font-extrabold text-slate-800">{{ pendingLeavesCount }}</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
+                        <div class="p-3 bg-emerald-100 text-emerald-600 rounded-lg"><i class="fa-solid fa-user-check text-xl"></i></div>
+                        <div>
+                            <p class="text-xs text-slate-500 font-semibold uppercase">Presentes Hoy</p>
+                            <p class="text-2xl font-extrabold text-slate-800">{{ presentTodayCount }} / {{ employees.length }}</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
+                        <div class="p-3 bg-rose-100 text-rose-600 rounded-lg"><i class="fa-solid fa-money-bill-wave text-xl"></i></div>
+                        <div>
+                            <p class="text-xs text-slate-500 font-semibold uppercase">Nómina Mensual</p>
+                            <p class="text-2xl font-extrabold text-slate-800">${{ totalPayroll.toLocaleString() }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <h2 class="text-lg font-bold text-slate-800 mb-4">Solicitudes Recientes de Permisos</h2>
+                    <div class="divide-y divide-slate-100">
+                        <div v-for="leave in leaves.slice(0, 3)" :key="leave.id" class="py-3 flex items-center justify-between">
+                            <div>
+                                <p class="font-semibold text-slate-800">{{ getEmployeeName(leave.employeeId) }}</p>
+                                <p class="text-xs text-slate-500">{{ leave.type }} — {{ leave.startDate }} al {{ leave.endDate }}</p>
+                            </div>
+                            <span :class="statusBadgeClass(leave.status)">{{ leave.status }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. GESTIÓN DE EMPLEADOS -->
+            <div v-if="currentTab === 'employees'" class="space-y-4">
+                <div class="flex flex-col sm:flex-row justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200">
+                    <input v-model="searchQuery" type="text" placeholder="Buscar por nombre o cargo..." 
+                           class="border border-slate-300 rounded-lg px-4 py-2 w-full sm:w-80 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <button @click="showAddModal = true" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-semibold flex items-center gap-2 justify-center transition">
+                        <i class="fa-solid fa-plus"></i> Nuevo Empleado
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-xl border border-slate-200 overflow-x-auto shadow-sm">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase text-xs">
+                            <tr>
+                                <th class="p-4">Empleado</th>
+                                <th class="p-4">Cargo</th>
+                                <th class="p-4">Departamento</th>
+                                <th class="p-4">Sueldo</th>
+                                <th class="p-4">Estado</th>
+                                <th class="p-4 text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr v-for="emp in filteredEmployees" :key="emp.id" class="hover:bg-slate-50">
+                                <td class="p-4 font-semibold text-slate-800">{{ emp.name }}</td>
+                                <td class="p-4 text-slate-600">{{ emp.role }}</td>
+                                <td class="p-4"><span class="bg-slate-100 text-slate-700 px-2.5 py-1 rounded-md text-xs font-semibold">{{ emp.department }}</span></td>
+                                <td class="p-4 text-slate-800 font-medium">${{ emp.salary.toLocaleString() }}</td>
+                                <td class="p-4">
+                                    <span :class="emp.active ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'" class="px-2.5 py-1 rounded-full text-xs font-bold">
+                                        {{ emp.active ? 'Activo' : 'Inactivo' }}
+                                    </span>
+                                </td>
+                                <td class="p-4 text-center">
+                                    <button @click="toggleStatus(emp)" class="text-slate-400 hover:text-indigo-600 text-sm font-semibold">
+                                        {{ emp.active ? 'Desactivar' : 'Activar' }}
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 3. VACACIONES Y PERMISOS -->
+            <div v-if="currentTab === 'leaves'" class="bg-white rounded-xl border border-slate-200 overflow-x-auto shadow-sm">
+                <table class="w-full text-left border-collapse text-sm">
+                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase text-xs">
+                        <tr>
+                            <th class="p-4">Empleado</th>
+                            <th class="p-4">Tipo</th>
+                            <th class="p-4">Fechas</th>
+                            <th class="p-4">Motivo</th>
+                            <th class="p-4">Estado</th>
+                            <th class="p-4 text-center">Gestión</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <tr v-for="leave in leaves" :key="leave.id" class="hover:bg-slate-50">
+                            <td class="p-4 font-semibold text-slate-800">{{ getEmployeeName(leave.employeeId) }}</td>
+                            <td class="p-4 text-slate-600">{{ leave.type }}</td>
+                            <td class="p-4 text-slate-600">{{ leave.startDate }} ➔ {{ leave.endDate }}</td>
+                            <td class="p-4 text-slate-500 italic max-w-xs truncate">{{ leave.reason }}</td>
+                            <td class="p-4"><span :class="statusBadgeClass(leave.status)">{{ leave.status }}</span></td>
+                            <td class="p-4 text-center space-x-2">
+                                <template v-if="leave.status === 'Pendiente'">
+                                    <button @click="updateLeave(leave.id, 'Aprobado')" class="bg-emerald-600 text-white px-3 py-1 rounded text-xs font-bold hover:bg-emerald-700">Aprobar</button>
+                                    <button @click="updateLeave(leave.id, 'Rechazado')" class="bg-rose-600 text-white px-3 py-1 rounded text-xs font-bold hover:bg-rose-700">Rechazar</button>
+                                </template>
+                                <span v-else class="text-slate-400 text-xs">Procesado</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 4. CONTROL DE ASISTENCIA -->
+            <div v-if="currentTab === 'attendance'" class="space-y-4">
+                <div class="bg-white p-4 rounded-xl border border-slate-200 flex justify-between items-center">
+                    <p class="font-bold text-slate-700">Registro diario de asistencia: <span class="text-indigo-600">{{ todayDate }}</span></p>
+                </div>
+                <div class="bg-white rounded-xl border border-slate-200 overflow-x-auto shadow-sm">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase text-xs">
+                            <tr>
+                                <th class="p-4">Empleado</th>
+                                <th class="p-4">Hora Entrada</th>
+                                <th class="p-4">Hora Salida</th>
+                                <th class="p-4">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr v-for="record in attendance" :key="record.id" class="hover:bg-slate-50">
+                                <td class="p-4 font-semibold text-slate-800">{{ getEmployeeName(record.employeeId) }}</td>
+                                <td class="p-4 text-slate-600">{{ record.checkIn || '--:--' }}</td>
+                                <td class="p-4 text-slate-600">{{ record.checkOut || '--:--' }}</td>
+                                <td class="p-4">
+                                    <span :class="{
+                                        'bg-emerald-100 text-emerald-700': record.status === 'Presente',
+                                        'bg-amber-100 text-amber-700': record.status === 'Atraso',
+                                        'bg-rose-100 text-rose-700': record.status === 'Ausente'
+                                    }" class="px-2.5 py-1 rounded-full text-xs font-bold">
+                                        {{ record.status }}
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 5. NÓMINA -->
+            <div v-if="currentTab === 'payroll'" class="bg-white rounded-xl border border-slate-200 overflow-x-auto shadow-sm">
+                <table class="w-full text-left border-collapse text-sm">
+                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase text-xs">
+                        <tr>
+                            <th class="p-4">Empleado</th>
+                            <th class="p-4">Sueldo Base</th>
+                            <th class="p-4">Descuentos</th>
+                            <th class="p-4">Líquido a Pagar</th>
+                            <th class="p-4 text-center">Comprobante</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <tr v-for="emp in activeEmployees" :key="emp.id" class="hover:bg-slate-50">
+                            <td class="p-4 font-semibold text-slate-800">{{ emp.name }}</td>
+                            <td class="p-4 text-slate-600">${{ emp.salary.toLocaleString() }}</td>
+                            <td class="p-4 text-rose-600">-${{ (emp.salary * 0.17).toLocaleString() }}</td>
+                            <td class="p-4 font-bold text-emerald-600">${{ (emp.salary * 0.83).toLocaleString() }}</td>
+                            <td class="p-4 text-center">
+                                <button @click="openReceiptModal(emp)" class="text-indigo-600 hover:text-indigo-800 text-xs font-bold border border-indigo-200 hover:border-indigo-400 px-3 py-1.5 rounded-md transition">
+                                    <i class="fa-solid fa-receipt"></i> Ver Detalle
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 6. PERFILES API (NUEVA FUNCIONALIDAD) -->
+            <div v-if="currentTab === 'profiles'" class="space-y-6">
+                <!-- Formulario de Consulta -->
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm max-w-xl">
+                    <h2 class="text-lg font-bold text-slate-800 mb-2">Consulta de Perfiles por Institución</h2>
+                    <p class="text-xs text-slate-500 mb-4">Consume el endpoint de administración: <code class="bg-slate-100 p-1 rounded text-indigo-600">/api/profiles/list</code></p>
+                    
+                    <div class="flex gap-3">
+                        <input 
+                            v-model="institutionQuery" 
+                            type="text" 
+                            placeholder="Ej: bchile" 
+                            class="border border-slate-300 rounded-lg px-4 py-2 flex-1 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+                            @keyup.enter="fetchProfiles"
+                        >
+                        <button 
+                            @click="fetchProfiles" 
+                            :disabled="profilesLoading"
+                            class="bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-300 text-white px-5 py-2 rounded-lg font-semibold text-sm flex items-center gap-2 transition"
+                        >
+                            <i v-if="profilesLoading" class="fa-solid fa-spinner fa-spin"></i>
+                            <i v-else class="fa-solid fa-magnifying-glass"></i>
+                            <span>Consultar</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Estado de Error -->
+                <div v-if="profilesError" class="bg-rose-50 border border-rose-200 text-rose-700 p-4 rounded-xl text-sm flex items-center gap-3">
+                    <i class="fa-solid fa-circle-exclamation text-lg"></i>
+                    <span>{{ profilesError }}</span>
+                </div>
+
+                <!-- Resultados de la Respuesta -->
+                <div v-if="profilesResponse" class="space-y-4">
+                    <!-- Resumen del resultado -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                            <p class="text-xs text-slate-500 uppercase font-semibold">Institución</p>
+                            <p class="text-xl font-bold text-indigo-600">{{ profilesResponse.institution }}</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                            <p class="text-xs text-slate-500 uppercase font-semibold">Prefijo</p>
+                            <p class="text-xl font-bold text-slate-700"><code class="bg-slate-100 px-2 py-0.5 rounded">{{ profilesResponse.prefix }}</code></p>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                            <p class="text-xs text-slate-500 uppercase font-semibold">Total Perfiles</p>
+                            <p class="text-xl font-bold text-emerald-600">{{ profilesResponse.count }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Listado de perfiles -->
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <h3 class="font-bold text-slate-800 mb-4">Listado de Perfiles Encontrados</h3>
+                        <div v-if="profilesResponse.profiles.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                            <div v-for="(profile, idx) in profilesResponse.profiles" :key="idx" class="p-3 bg-slate-50 border border-slate-200 rounded-lg flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-xs">
+                                    {{ idx + 1 }}
+                                </div>
+                                <span class="font-mono text-xs font-semibold text-slate-700">{{ profile }}</span>
+                            </div>
+                        </div>
+                        <p v-else class="text-slate-400 text-sm italic">No se encontraron perfiles registrados.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- MODAL: AGREGAR EMPLEADO -->
+    <div v-if="showAddModal" class="fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <h3 class="text-lg font-bold text-slate-800">Agregar Nuevo Empleado</h3>
+            <div class="space-y-3">
+                <div>
+                    <label class="text-xs font-semibold text-slate-600">Nombre Completo</label>
+                    <input v-model="newEmp.name" type="text" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-slate-600">Cargo</label>
+                    <input v-model="newEmp.role" type="text" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-slate-600">Departamento</label>
+                    <select v-model="newEmp.department" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                        <option value="Tecnología">Tecnología</option>
+                        <option value="Recursos Humanos">Recursos Humanos</option>
+                        <option value="Ventas">Ventas</option>
+                        <option value="Finanzas">Finanzas</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-slate-600">Sueldo Base ($)</label>
+                    <input v-model.number="newEmp.salary" type="number" class="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+            </div>
+            <div class="flex justify-end gap-3 pt-2">
+                <button @click="showAddModal = false" class="px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
+                <button @click="addEmployee" class="px-4 py-2 text-sm font-semibold bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: RECIBO DE SUELDO -->
+    <div v-if="selectedReceipt" class="fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl max-w-sm w-full p-6 shadow-2xl space-y-4">
+            <div class="border-b border-slate-200 pb-3 flex justify-between items-center">
+                <h3 class="font-bold text-slate-800">Liquidación de Sueldo</h3>
+                <button @click="selectedReceipt = null" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="space-y-2 text-sm">
+                <p><strong>Empleado:</strong> {{ selectedReceipt.name }}</p>
+                <p><strong>Cargo:</strong> {{ selectedReceipt.role }}</p>
+                <hr class="my-2 border-slate-100">
+                <div class="flex justify-between text-slate-600">
+                    <span>Sueldo Base:</span>
+                    <span>${{ selectedReceipt.salary.toLocaleString() }}</span>
+                </div>
+                <div class="flex justify-between text-rose-600">
+                    <span>Previsión / Salud (17%):</span>
+                    <span>-${{ (selectedReceipt.salary * 0.17).toLocaleString() }}</span>
+                </div>
+                <hr class="my-2 border-slate-100">
+                <div class="flex justify-between font-bold text-slate-800 text-base">
+                    <span>Monto Líquido:</span>
+                    <span class="text-emerald-600">${{ (selectedReceipt.salary * 0.83).toLocaleString() }}</span>
+                </div>
+            </div>
+            <button @click="selectedReceipt = null" class="w-full mt-4 py-2 bg-slate-800 text-white rounded-lg font-semibold text-sm hover:bg-slate-900">Cerrar</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    const { createApp, ref, computed } = Vue;
+
+    createApp({
+        setup() {
+            const currentTab = ref('dashboard');
+            const searchQuery = ref('');
+            const showAddModal = ref(false);
+            const selectedReceipt = ref(null);
+
+            // Variables de estado para la integración de Perfiles API
+            const institutionQuery = ref('bchile');
+            const profilesResponse = ref(null);
+            const profilesLoading = ref(false);
+            const profilesError = ref(null);
+
+            // Datos ficticios iniciales
+            const employees = ref([
+                { id: 1, name: 'Ana Martínez', role: 'Desarrolladora Senior', department: 'Tecnología', salary: 2800000, active: true },
+                { id: 2, name: 'Carlos Rojas', role: 'Analista de Selección', department: 'Recursos Humanos', salary: 1400000, active: true },
+                { id: 3, name: 'María José Silva', role: 'Ejecutiva de Ventas', department: 'Ventas', salary: 1200000, active: true },
+                { id: 4, name: 'Javier López', role: 'Contador General', department: 'Finanzas', salary: 2100000, active: true },
+                { id: 5, name: 'Sofía Castro', role: 'UX Designer', department: 'Tecnología', salary: 1900000, active: false }
+            ]);
+
+            const leaves = ref([
+                { id: 101, employeeId: 1, type: 'Vacaciones', startDate: '2026-10-01', endDate: '2026-10-10', reason: 'Descanso anual', status: 'Pendiente' },
+                { id: 102, employeeId: 3, type: 'Permiso Médico', startDate: '2026-09-15', endDate: '2026-09-16', reason: 'Control médico', status: 'Aprobado' }
+            ]);
+
+            const attendance = ref([
+                { id: 1, employeeId: 1, checkIn: '08:55', checkOut: '18:05', status: 'Presente' },
+                { id: 2, employeeId: 2, checkIn: '09:18', checkOut: null, status: 'Atraso' },
+                { id: 3, employeeId: 3, checkIn: '08:45', checkOut: '18:00', status: 'Presente' },
+                { id: 4, employeeId: 4, checkIn: null, checkOut: null, status: 'Ausente' }
+            ]);
+
+            const newEmp = ref({ name: '', role: '', department: 'Tecnología', salary: 0 });
+
+            // Propiedades Computadas
+            const currentTabTitle = computed(() => {
+                const titles = {
+                    dashboard: 'Resumen General',
+                    employees: 'Directorio de Empleados',
+                    leaves: 'Vacaciones y Permisos',
+                    attendance: 'Control de Asistencia',
+                    payroll: 'Nómina de Sueldos',
+                    profiles: 'Gestión de Perfiles API'
+                };
+                return titles[currentTab.value];
+            });
+
+            const activeEmployees = computed(() => employees.value.filter(e => e.active));
+            const pendingLeavesCount = computed(() => leaves.value.filter(l => l.status === 'Pendiente').length);
+            const presentTodayCount = computed(() => attendance.value.filter(a => a.status === 'Presente' || a.status === 'Atraso').length);
+            const totalPayroll = computed(() => activeEmployees.value.reduce((acc, emp) => acc + emp.salary, 0));
+
+            const filteredEmployees = computed(() => {
+                return employees.value.filter(emp => 
+                    emp.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+                    emp.role.toLowerCase().includes(searchQuery.value.toLowerCase())
+                );
+            });
+
+            const todayDate = computed(() => new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
+
+            // Función para consumir la API de Administración
+            const fetchProfiles = async () => {
+                if (!institutionQuery.value.trim()) {
+                    profilesError.value = 'Ingresa el nombre de una institución.';
+                    return;
+                }
+
+                profilesLoading.value = true;
+                profilesError.value = null;
+
+                try {
+                    const response = await fetch('http://192.168.1.19:9000/api/profiles/list', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            institution: institutionQuery.value.trim()
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Error en el servidor (${response.status})`);
+                    }
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        profilesResponse.value = data;
+                    } else {
+                        profilesError.value = 'La respuesta de la API no fue exitosa.';
+                    }
+                } catch (err) {
+                    profilesError.value = `Ocurrió un error al consultar la API: ${err.message}`;
+                    profilesResponse.value = null;
+                } finally {
+                    profilesLoading.value = false;
+                }
+            };
+
+            // Estilos UI
+            const navClass = (tab) => [
+                'w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition',
+                currentTab.value === tab ? 'bg-indigo-600 text-white font-bold' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'
+            ];
+
+            const statusBadgeClass = (status) => ({
+                'bg-amber-100 text-amber-700 font-bold px-2.5 py-1 rounded-full text-xs': status === 'Pendiente',
+                'bg-emerald-100 text-emerald-700 font-bold px-2.5 py-1 rounded-full text-xs': status === 'Aprobado',
+                'bg-rose-100 text-rose-700 font-bold px-2.5 py-1 rounded-full text-xs': status === 'Rechazado'
+            });
+
+            const getEmployeeName = (id) => {
+                const emp = employees.value.find(e => e.id === id);
+                return emp ? emp.name : 'Desconocido';
+            };
+
+            const toggleStatus = (emp) => {
+                emp.active = !emp.active;
+            };
+
+            const addEmployee = () => {
+                if (newEmp.value.name && newEmp.value.role && newEmp.value.salary > 0) {
+                    employees.value.push({
+                        id: employees.value.length + 1,
+                        ...newEmp.value,
+                        active: true
+                    });
+                    newEmp.value = { name: '', role: '', department: 'Tecnología', salary: 0 };
+                    showAddModal.value = false;
+                }
+            };
+
+            const updateLeave = (id, status) => {
+                const leave = leaves.value.find(l => l.id === id);
+                if (leave) leave.status = status;
+            };
+
+            const openReceiptModal = (emp) => {
+                selectedReceipt.value = emp;
+            };
+
+            return {
+                currentTab,
+                currentTabTitle,
+                searchQuery,
+                showAddModal,
+                selectedReceipt,
+                employees,
+                leaves,
+                attendance,
+                newEmp,
+                pendingLeavesCount,
+                presentTodayCount,
+                totalPayroll,
+                activeEmployees,
+                filteredEmployees,
+                todayDate,
+                
+                // Exposición de variables/métodos API
+                institutionQuery,
+                profilesResponse,
+                profilesLoading,
+                profilesError,
+                fetchProfiles,
+
+                navClass,
+                statusBadgeClass,
+                getEmployeeName,
+                toggleStatus,
+                addEmployee,
+                updateLeave,
+                openReceiptModal
+            };
+        }
+    }).mount('#app');
+</script>
+
+</body>
+</html>
