@@ -1,0 +1,2689 @@
+```html
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Intranet Corporativa</title>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+
+<style>
+
+/* ============================================================
+   GENERAL
+   ============================================================ */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background: #f3f5f7;
+
+    color: #333;
+}
+
+button,
+input,
+select {
+    font-family: inherit;
+}
+
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+
+.topbar {
+
+    min-height: 72px;
+
+    background: #003b70;
+
+    color: white;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 12px 30px;
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 1000;
+
+    box-shadow:
+        0 2px 8px rgba(0,0,0,.20);
+}
+
+
+.logo {
+
+    font-size: 21px;
+
+    font-weight: bold;
+}
+
+
+.logo small {
+
+    display: block;
+
+    font-size: 11px;
+
+    font-weight: normal;
+
+    opacity: .8;
+}
+
+
+/* ============================================================
+   LOGIN
+   ============================================================ */
+
+.login-area {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    flex-wrap: wrap;
+}
+
+
+.login-area label {
+
+    font-size: 12px;
+}
+
+
+.login-select {
+
+    height: 36px;
+
+    min-width: 230px;
+
+    border: none;
+
+    border-radius: 4px;
+
+    padding: 6px 10px;
+
+    background: white;
+
+    color: #333;
+
+    cursor: pointer;
+}
+
+
+.login-input {
+
+    width: 120px;
+
+    height: 36px;
+
+    border: none;
+
+    border-radius: 4px;
+
+    padding: 7px 10px;
+}
+
+
+.login-button {
+
+    height: 36px;
+
+    border: none;
+
+    border-radius: 4px;
+
+    padding: 0 18px;
+
+    background: white;
+
+    color: #003b70;
+
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+
+.login-button:hover {
+
+    background: #e9eef3;
+}
+
+
+/* ============================================================
+   USER AREA
+   ============================================================ */
+
+.user-area {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 20px;
+
+    font-size: 13px;
+
+    flex-wrap: wrap;
+}
+
+
+.logout {
+
+    border: none;
+
+    background: white;
+
+    color: #003b70;
+
+    padding: 7px 14px;
+
+    border-radius: 4px;
+
+    cursor: pointer;
+
+    font-weight: bold;
+}
+
+
+/* ============================================================
+   MENU
+   ============================================================ */
+
+.menu {
+
+    background: white;
+
+    border-bottom: 1px solid #ddd;
+
+    display: flex;
+
+    padding-left: 30px;
+
+    overflow-x: auto;
+}
+
+
+.menu button {
+
+    border: none;
+
+    background: transparent;
+
+    padding: 16px 18px;
+
+    cursor: pointer;
+
+    color: #444;
+
+    white-space: nowrap;
+}
+
+
+.menu button:hover {
+
+    background: #f1f4f7;
+
+    color: #003b70;
+}
+
+
+.menu button.active {
+
+    color: #003b70;
+
+    font-weight: bold;
+
+    border-bottom: 3px solid #003b70;
+}
+
+
+/* ============================================================
+   MAIN
+   ============================================================ */
+
+main {
+
+    max-width: 1400px;
+
+    margin: auto;
+
+    padding: 30px;
+}
+
+
+/* ============================================================
+   HERO
+   ============================================================ */
+
+.hero {
+
+    background: white;
+
+    padding: 35px;
+
+    border-radius: 8px;
+
+    margin-bottom: 25px;
+
+    box-shadow:
+        0 2px 8px rgba(0,0,0,.06);
+}
+
+
+.hero h1 {
+
+    margin-top: 0;
+
+    color: #003b70;
+
+    font-size: 30px;
+}
+
+
+.hero p {
+
+    max-width: 850px;
+
+    line-height: 1.6;
+}
+
+
+/* ============================================================
+   SEARCH
+   ============================================================ */
+
+.search {
+
+    margin-top: 25px;
+
+    display: flex;
+
+    max-width: 700px;
+}
+
+
+.search input {
+
+    flex: 1;
+
+    height: 42px;
+
+    border: 1px solid #ccc;
+
+    border-radius: 5px 0 0 5px;
+
+    padding: 10px;
+}
+
+
+.search button {
+
+    width: 110px;
+
+    border: none;
+
+    background: #003b70;
+
+    color: white;
+
+    border-radius: 0 5px 5px 0;
+
+    cursor: pointer;
+}
+
+
+/* ============================================================
+   GRID
+   ============================================================ */
+
+.grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fit, minmax(250px, 1fr));
+
+    gap: 20px;
+
+    margin-bottom: 25px;
+}
+
+
+/* ============================================================
+   CARD
+   ============================================================ */
+
+.card {
+
+    background: white;
+
+    padding: 23px;
+
+    border-radius: 8px;
+
+    box-shadow:
+        0 2px 8px rgba(0,0,0,.06);
+}
+
+
+.card h3 {
+
+    color: #003b70;
+
+    margin-top: 0;
+}
+
+
+.card p {
+
+    line-height: 1.5;
+
+    color: #555;
+}
+
+
+.card-link {
+
+    color: #0066a1;
+
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+
+/* ============================================================
+   QUICK ACCESS
+   ============================================================ */
+
+.quick {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fit, minmax(170px,1fr));
+
+    gap: 12px;
+}
+
+
+.quick-item {
+
+    background: white;
+
+    padding: 18px;
+
+    text-align: center;
+
+    border-radius: 7px;
+
+    cursor: pointer;
+
+    border: 1px solid #eee;
+}
+
+
+.quick-item:hover {
+
+    border-color: #003b70;
+
+    box-shadow:
+        0 2px 8px rgba(0,0,0,.08);
+}
+
+
+.quick-icon {
+
+    font-size: 28px;
+
+    margin-bottom: 8px;
+}
+
+
+/* ============================================================
+   NEWS
+   ============================================================ */
+
+.news {
+
+    border-bottom: 1px solid #eee;
+
+    padding: 15px 0;
+}
+
+
+.news:last-child {
+
+    border-bottom: none;
+}
+
+
+.news-date {
+
+    font-size: 12px;
+
+    color: #777;
+}
+
+
+.news-title {
+
+    color: #003b70;
+
+    font-weight: bold;
+
+    margin: 5px 0;
+}
+
+
+/* ============================================================
+   TABLE
+   ============================================================ */
+
+table {
+
+    width: 100%;
+
+    border-collapse: collapse;
+
+    background: white;
+}
+
+
+th {
+
+    background: #003b70;
+
+    color: white;
+
+    padding: 12px;
+
+    text-align: left;
+}
+
+
+td {
+
+    padding: 12px;
+
+    border-bottom: 1px solid #eee;
+}
+
+
+/* ============================================================
+   BADGES
+   ============================================================ */
+
+.badge {
+
+    display: inline-block;
+
+    padding: 4px 9px;
+
+    border-radius: 12px;
+
+    font-size: 11px;
+
+    background: #e8f1f8;
+
+    color: #003b70;
+}
+
+
+/* ============================================================
+   PROFILE
+   ============================================================ */
+
+.profile {
+
+    display: flex;
+
+    gap: 25px;
+
+    align-items: center;
+}
+
+
+.avatar {
+
+    width: 85px;
+
+    height: 85px;
+
+    border-radius: 50%;
+
+    background: #003b70;
+
+    color: white;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 28px;
+
+    font-weight: bold;
+}
+
+
+/* ============================================================
+   ALERT
+   ============================================================ */
+
+.alert {
+
+    padding: 14px 18px;
+
+    background: #fff3cd;
+
+    border: 1px solid #ffeeba;
+
+    border-radius: 6px;
+
+    margin-bottom: 20px;
+}
+
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+
+footer {
+
+    background: #003b70;
+
+    color: white;
+
+    padding: 30px;
+
+    margin-top: 50px;
+
+    text-align: center;
+
+    font-size: 13px;
+}
+
+
+/* ============================================================
+   ASISTENTE IA
+   ============================================================ */
+
+#ia-assistant-container {
+
+    position: fixed;
+
+    right: 25px;
+
+    bottom: 25px;
+
+    z-index: 9999;
+}
+
+
+/* ============================================================
+   LOGIN USER INFO
+   ============================================================ */
+
+.selected-user {
+
+    background: #eef5fb;
+
+    border-left: 4px solid #003b70;
+
+    padding: 12px 15px;
+
+    margin-top: 15px;
+
+    font-size: 13px;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media(max-width: 900px) {
+
+    .topbar {
+
+        padding: 12px 15px;
+
+        flex-direction: column;
+
+        gap: 12px;
+
+        align-items: stretch;
+    }
+
+
+    .login-area {
+
+        width: 100%;
+    }
+
+
+    .login-select {
+
+        width: 100%;
+    }
+
+
+    main {
+
+        padding: 15px;
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div id="app">
+
+
+<!-- ============================================================
+     HEADER
+     ============================================================ -->
+
+<header class="topbar">
+
+
+    <!-- ========================================================
+         LOGO
+         ======================================================== -->
+
+    <div class="logo">
+
+        Banco / Institución Financiera
+
+        <small>
+            Intranet Corporativa
+        </small>
+
+    </div>
+
+
+    <!-- ========================================================
+         LOGIN
+         ======================================================== -->
+
+    <div
+        v-if="!loggedIn"
+        class="login-area"
+    >
+
+
+        <!-- ====================================================
+             SELECTOR DE USUARIOS PREDEFINIDOS
+             ==================================================== -->
+
+        <select
+            v-model="selectedUser"
+            class="login-select"
+            @change="selectUser"
+        >
+
+            <option value="">
+                -- Seleccionar usuario --
+            </option>
+
+
+            <option
+                v-for="user in predefinedUsers"
+                :key="user.id"
+                :value="user.id"
+            >
+
+                {{ user.name }}
+                -
+                {{ user.id }}
+                -
+                {{ user.institution }}
+
+            </option>
+
+        </select>
+
+
+        <!-- ====================================================
+             INSTITUCIÓN
+             ==================================================== -->
+
+        <input
+            type="text"
+            v-model="loginInstitution"
+            class="login-input"
+            placeholder="Institución"
+        >
+
+
+        <!-- ====================================================
+             ID
+             ==================================================== -->
+
+        <input
+            type="text"
+            v-model="loginUserId"
+            class="login-input"
+            placeholder="ID"
+        >
+
+
+        <!-- ====================================================
+             INGRESAR
+             ==================================================== -->
+
+        <button
+            class="login-button"
+            @click="login"
+        >
+
+            Ingresar
+
+        </button>
+
+
+    </div>
+
+
+    <!-- ========================================================
+         USUARIO LOGUEADO
+         ======================================================== -->
+
+    <div
+        v-else
+        class="user-area"
+    >
+
+        <span>
+
+            👤
+
+            <strong>
+                {{ userName }}
+            </strong>
+
+        </span>
+
+
+        <span>
+
+            Institución:
+            <strong>
+                {{ institution }}
+            </strong>
+
+        </span>
+
+
+        <span>
+
+            ID:
+            <strong>
+                {{ userId }}
+            </strong>
+
+        </span>
+
+
+        <button
+            class="logout"
+            @click="logout"
+        >
+
+            Salir
+
+        </button>
+
+    </div>
+
+
+</header>
+
+
+<!-- ============================================================
+     ERROR
+     ============================================================ -->
+
+<div
+    v-if="loginError"
+    class="alert"
+    style="margin:15px 30px;"
+>
+
+    {{ loginError }}
+
+</div>
+
+
+<!-- ============================================================
+     MENU
+     ============================================================ -->
+
+<nav class="menu">
+
+
+    <button
+        :class="{active: currentSection === 'inicio'}"
+        @click="go('inicio')"
+    >
+        🏠 Inicio
+    </button>
+
+
+    <button
+        :class="{active: currentSection === 'noticias'}"
+        @click="go('noticias')"
+    >
+        📰 Noticias
+    </button>
+
+
+    <button
+        :class="{active: currentSection === 'personas'}"
+        @click="go('personas')"
+    >
+        👥 Personas
+    </button>
+
+
+    <button
+        :class="{active: currentSection === 'documentos'}"
+        @click="go('documentos')"
+    >
+        📚 Documentos
+    </button>
+
+
+    <button
+        :class="{active: currentSection === 'capacitacion'}"
+        @click="go('capacitacion')"
+    >
+        🎓 Capacitación
+    </button>
+
+
+    <button
+        :class="{active: currentSection === 'beneficios'}"
+        @click="go('beneficios')"
+    >
+        💼 Beneficios
+    </button>
+
+
+    <button
+        :class="{active: currentSection === 'ayuda'}"
+        @click="go('ayuda')"
+    >
+        🆘 Ayuda
+    </button>
+
+
+</nav>
+
+
+<!-- ============================================================
+     MAIN
+     ============================================================ -->
+
+<main>
+
+
+<!-- ============================================================
+     INICIO
+     ============================================================ -->
+
+<section
+    v-if="currentSection === 'inicio'"
+>
+
+
+    <div class="hero">
+
+
+        <h1>
+
+            {{ loggedIn
+                ? 'Bienvenido, ' + userName
+                : 'Bienvenido a nuestra Intranet Corporativa'
+            }}
+
+        </h1>
+
+
+        <p>
+
+            Este es el portal corporativo donde nuestros
+            funcionarios pueden acceder a información,
+            servicios, documentación, capacitación y
+            herramientas internas.
+
+        </p>
+
+
+        <!-- ====================================================
+             INFORMACIÓN DEL USUARIO
+             ==================================================== -->
+
+        <div
+            v-if="loggedIn"
+            class="selected-user"
+        >
+
+            <strong>
+                Sesión activa
+            </strong>
+
+            <br><br>
+
+            Usuario:
+            {{ userName }}
+
+            <br>
+
+            ID:
+            {{ userId }}
+
+            <br>
+
+            Institución:
+            {{ institution }}
+
+        </div>
+
+
+        <div
+            v-else
+            class="selected-user"
+        >
+
+            ℹ️
+
+            Selecciona un usuario predefinido en la
+            parte superior para iniciar una sesión
+            de demostración.
+
+        </div>
+
+
+        <!-- ====================================================
+             SEARCH
+             ==================================================== -->
+
+        <div class="search">
+
+            <input
+                v-model="searchText"
+                placeholder="Buscar en la intranet..."
+            >
+
+
+            <button
+                @click="search"
+            >
+
+                Buscar
+
+            </button>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- ========================================================
+         ACCESOS RAPIDOS
+         ======================================================== -->
+
+    <h2>
+        Accesos rápidos
+    </h2>
+
+
+    <div class="quick">
+
+
+        <div
+            class="quick-item"
+            @click="go('documentos')"
+        >
+
+            <div class="quick-icon">
+                📄
+            </div>
+
+            Procedimientos
+
+        </div>
+
+
+        <div
+            class="quick-item"
+            @click="go('capacitacion')"
+        >
+
+            <div class="quick-icon">
+                🎓
+            </div>
+
+            Capacitación
+
+        </div>
+
+
+        <div class="quick-item">
+
+            <div class="quick-icon">
+                🗓️
+            </div>
+
+            Calendario
+
+        </div>
+
+
+        <div class="quick-item">
+
+            <div class="quick-icon">
+                📞
+            </div>
+
+            Directorio
+
+        </div>
+
+
+        <div class="quick-item">
+
+            <div class="quick-icon">
+                💻
+            </div>
+
+            Mesa de Ayuda
+
+        </div>
+
+
+        <div class="quick-item">
+
+            <div class="quick-icon">
+                🔐
+            </div>
+
+            Seguridad
+
+        </div>
+
+
+    </div>
+
+
+    <!-- ========================================================
+         NOTICIAS
+         ======================================================== -->
+
+    <h2 style="margin-top:35px;">
+
+        Últimas noticias
+
+    </h2>
+
+
+    <div class="grid">
+
+
+        <div
+            class="card"
+            v-for="news in newsList"
+            :key="news.id"
+        >
+
+            <span class="badge">
+                {{ news.category }}
+            </span>
+
+
+            <h3>
+                {{ news.title }}
+            </h3>
+
+
+            <p>
+                {{ news.description }}
+            </p>
+
+
+            <span class="news-date">
+                {{ news.date }}
+            </span>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- ========================================================
+         INDICADORES
+         ======================================================== -->
+
+    <h2>
+        Información corporativa
+    </h2>
+
+
+    <div class="grid">
+
+
+        <div class="card">
+
+            <h3>
+                Funcionarios
+            </h3>
+
+            <p
+                style="
+                    font-size:30px;
+                    color:#003b70;
+                    font-weight:bold;
+                "
+            >
+
+                4.286
+
+            </p>
+
+            Funcionarios activos
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>
+                Sucursales
+            </h3>
+
+            <p
+                style="
+                    font-size:30px;
+                    color:#003b70;
+                    font-weight:bold;
+                "
+            >
+
+                126
+
+            </p>
+
+            En todo el país
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>
+                Clientes
+            </h3>
+
+            <p
+                style="
+                    font-size:30px;
+                    color:#003b70;
+                    font-weight:bold;
+                "
+            >
+
+                2,8 M
+
+            </p>
+
+            Clientes atendidos
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>
+                Disponibilidad
+            </h3>
+
+            <p
+                style="
+                    font-size:30px;
+                    color:#003b70;
+                    font-weight:bold;
+                "
+            >
+
+                99,97%
+
+            </p>
+
+            Servicios digitales
+
+        </div>
+
+
+    </div>
+
+
+</section>
+
+
+<!-- ============================================================
+     NOTICIAS
+     ============================================================ -->
+
+<section
+    v-if="currentSection === 'noticias'"
+>
+
+    <div class="hero">
+
+        <h1>
+            Noticias y Comunicados
+        </h1>
+
+        <p>
+            Información y novedades de nuestra organización.
+        </p>
+
+    </div>
+
+
+    <div class="card">
+
+        <div
+            class="news"
+            v-for="news in newsList"
+            :key="news.id"
+        >
+
+            <span class="badge">
+                {{ news.category }}
+            </span>
+
+
+            <div class="news-title">
+                {{ news.title }}
+            </div>
+
+
+            <p>
+                {{ news.description }}
+            </p>
+
+
+            <span class="news-date">
+                Publicado el {{ news.date }}
+            </span>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ============================================================
+     PERSONAS
+     ============================================================ -->
+
+<section
+    v-if="currentSection === 'personas'"
+>
+
+    <div class="hero">
+
+        <h1>
+            Personas
+        </h1>
+
+        <p>
+            Información y servicios para nuestros funcionarios.
+        </p>
+
+    </div>
+
+
+    <div class="grid">
+
+
+        <div class="card">
+
+            <h3>
+                👤 Mi Perfil
+            </h3>
+
+
+            <div
+                v-if="loggedIn"
+                class="profile"
+            >
+
+                <div class="avatar">
+
+                    {{ initials }}
+
+                </div>
+
+
+                <div>
+
+                    <strong>
+                        {{ userName }}
+                    </strong>
+
+
+                    <p>
+                        ID: {{ userId }}
+                    </p>
+
+
+                    <p>
+                        Institución: {{ institution }}
+                    </p>
+
+
+                    <span class="badge">
+                        Funcionario activo
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <p v-else>
+
+                Inicia sesión para consultar
+                tu perfil.
+
+            </p>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>
+                📞 Directorio
+            </h3>
+
+            <p>
+                Busca funcionarios, áreas y unidades
+                de nuestra organización.
+            </p>
+
+            <span class="card-link">
+                Consultar directorio →
+            </span>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>
+                🏖️ Vacaciones
+            </h3>
+
+            <p>
+                Consulta tus días disponibles y
+                solicitudes de vacaciones.
+            </p>
+
+            <span class="card-link">
+                Ver vacaciones →
+            </span>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>
+                💰 Remuneraciones
+            </h3>
+
+            <p>
+                Accede a tus liquidaciones y
+                certificados laborales.
+            </p>
+
+            <span class="card-link">
+                Ver remuneraciones →
+            </span>
+
+        </div>
+
+
+    </div>
+
+</section>
+
+
+<!-- ============================================================
+     DOCUMENTOS
+     ============================================================ -->
+
+<section
+    v-if="currentSection === 'documentos'"
+>
+
+    <div class="hero">
+
+        <h1>
+            Biblioteca Documental
+        </h1>
+
+        <p>
+            Procedimientos, políticas, normativas
+            y documentos corporativos.
+        </p>
+
+    </div>
+
+
+    <div class="card">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Documento
+                    </th>
+
+                    <th>
+                        Categoría
+                    </th>
+
+                    <th>
+                        Versión
+                    </th>
+
+                    <th>
+                        Acción
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+
+                <tr>
+
+                    <td>
+                        Código de Conducta
+                    </td>
+
+                    <td>
+                        Normativa
+                    </td>
+
+                    <td>
+                        4.2
+                    </td>
+
+                    <td>
+                        📄 Ver
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        Política de Seguridad de la Información
+                    </td>
+
+                    <td>
+                        Seguridad
+                    </td>
+
+                    <td>
+                        8.1
+                    </td>
+
+                    <td>
+                        📄 Ver
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        Procedimiento de Continuidad Operacional
+                    </td>
+
+                    <td>
+                        Procedimientos
+                    </td>
+
+                    <td>
+                        3.5
+                    </td>
+
+                    <td>
+                        📄 Ver
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        Manual de Prevención de Riesgos
+                    </td>
+
+                    <td>
+                        Riesgos
+                    </td>
+
+                    <td>
+                        2.8
+                    </td>
+
+                    <td>
+                        📄 Ver
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        Reglamento Interno
+                    </td>
+
+                    <td>
+                        Personas
+                    </td>
+
+                    <td>
+                        12.0
+                    </td>
+
+                    <td>
+                        📄 Ver
+                    </td>
+
+                </tr>
+
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+
+<!-- ============================================================
+     CAPACITACION
+     ============================================================ -->
+
+<section
+    v-if="currentSection === 'capacitacion'"
+>
+
+    <div class="hero">
+
+        <h1>
+            Universidad Corporativa
+        </h1>
+
+        <p>
+            Cursos y programas de capacitación
+            para nuestros funcionarios.
+        </p>
+
+    </div>
+
+
+    <div class="grid">
+
+
+        <div class="card">
+
+            <span class="badge">
+                Obligatorio
+            </span>
+
+            <h3>
+                Seguridad de la Información
+            </h3>
+
+            <p>
+                Curso anual sobre protección de información,
+                seguridad y buenas prácticas.
+            </p>
+
+            <strong>
+                65% completado
+            </strong>
+
+        </div>
+
+
+        <div class="card">
+
+            <span class="badge">
+                Compliance
+            </span>
+
+            <h3>
+                Prevención de Lavado de Activos
+            </h3>
+
+            <p>
+                Principios y procedimientos corporativos
+                relacionados con prevención y cumplimiento.
+            </p>
+
+            <strong>
+                Disponible
+            </strong>
+
+        </div>
+
+
+        <div class="card">
+
+            <span class="badge">
+                Tecnología
+            </span>
+
+            <h3>
+                Transformación Digital
+            </h3>
+
+            <p>
+                Nuevas herramientas y metodologías
+                digitales para nuestros equipos.
+            </p>
+
+            <strong>
+                Disponible
+            </strong>
+
+        </div>
+
+
+    </div>
+
+</section>
+
+
+<!-- ============================================================
+     BENEFICIOS
+     ============================================================ -->
+
+<section
+    v-if="currentSection === 'beneficios'"
+>
+
+    <div class="hero">
+
+        <h1>
+            Beneficios para Funcionarios
+        </h1>
+
+        <p>
+            Convenios y beneficios disponibles para
+            nuestros colaboradores.
+        </p>
+
+    </div>
+
+
+    <div class="grid">
+
+
+        <div class="card">
+
+            <h3>
+                🏥 Salud
+            </h3>
+
+            <p>
+                Convenios con centros médicos y
+                prestadores de salud.
+            </p>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>
+                🎓 Educación
+            </h3>
+
+            <p>
+                Convenios con universidades e
+                instituciones educacionales.
+            </p>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>
+                🏋️ Deporte
+            </h3>
+
+            <p>
+                Beneficios en gimnasios y actividades
+                deportivas.
+            </p>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>
+                🛍️ Convenios
+            </h3>
+
+            <p>
+                Descuentos especiales en comercios
+                asociados.
+            </p>
+
+        </div>
+
+
+    </div>
+
+</section>
+
+
+<!-- ============================================================
+     AYUDA
+     ============================================================ -->
+
+<section
+    v-if="currentSection === 'ayuda'"
+>
+
+    <div class="hero">
+
+        <h1>
+            Mesa de Ayuda
+        </h1>
+
+        <p>
+            Solicita soporte tecnológico o ayuda
+            con servicios corporativos.
+        </p>
+
+    </div>
+
+
+    <div class="grid">
+
+
+        <div class="card">
+
+            <h3>
+                💻 Soporte TI
+            </h3>
+
+            <p>
+                Problemas con computador, aplicaciones,
+                acceso o conectividad.
+            </p>
+
+            <button
+                class="login-button"
+                style="
+                    background:#003b70;
+                    color:white;
+                "
+            >
+                Crear solicitud
+            </button>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>
+                🔐 Accesos
+            </h3>
+
+            <p>
+                Solicitud o modificación de permisos
+                para sistemas corporativos.
+            </p>
+
+            <button
+                class="login-button"
+                style="
+                    background:#003b70;
+                    color:white;
+                "
+            >
+                Solicitar acceso
+            </button>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>
+                📞 Contacto
+            </h3>
+
+            <p>
+                Mesa de Ayuda: Anexo 4000
+            </p>
+
+            <p>
+                Horario: 08:00 - 18:00
+            </p>
+
+        </div>
+
+
+    </div>
+
+</section>
+
+
+</main>
+
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+
+<footer>
+
+    <strong>
+        Banco / Institución Financiera
+    </strong>
+
+    <br><br>
+
+    Intranet Corporativa · Seguridad · Privacidad · Contacto
+
+    <br><br>
+
+    © 2026 Institución Financiera Ficticia
+
+</footer>
+
+
+<!-- ============================================================
+     ASISTENTE IA
+     ============================================================ -->
+
+<div
+    id="ia-assistant-container"
+></div>
+
+
+</div>
+
+
+<!-- ============================================================
+     VUE APPLICATION
+     ============================================================ -->
+
+<script>
+
+
+const {
+    createApp
+} = Vue;
+
+
+createApp({
+
+    /* =========================================================
+       DATA
+       ========================================================= */
+
+    data() {
+
+        return {
+
+
+            /* =================================================
+               LOGIN
+               ================================================= */
+
+            loggedIn: false,
+
+            loginInstitution: "",
+
+            loginUserId: "",
+
+
+            /* =================================================
+               USUARIO AUTENTICADO
+               ================================================= */
+
+            institution: "",
+
+            userId: "",
+
+            userName: "Funcionario",
+
+
+            /* =================================================
+               USUARIO SELECCIONADO
+               ================================================= */
+
+            selectedUser: "",
+
+
+            /* =================================================
+               USUARIOS PREDEFINIDOS
+               ================================================= */
+
+            predefinedUsers: [
+
+                {
+                    name: "James Bond",
+                    id: "jb007",
+                    institution: "AcerosLA"
+                },
+
+
+                {
+                    name: "Indiana Jones",
+                    id: "IJ00001",
+                    institution: "AcerosLA"
+                },
+
+
+                {
+                    name: "Forrest Gump",
+                    id: "FR00001",
+                    institution: "bchile"
+                },
+
+
+                {
+                    name: "Usuario Test",
+                    id: "testing22",
+                    institution: "bchile"
+                }
+
+            ],
+
+
+            /* =================================================
+               NAVEGACIÓN
+               ================================================= */
+
+            currentSection: "inicio",
+
+
+            /* =================================================
+               BUSCADOR
+               ================================================= */
+
+            searchText: "",
+
+
+            /* =================================================
+               ERROR
+               ================================================= */
+
+            loginError: "",
+
+
+            /* =================================================
+               ASISTENTE IA
+               ================================================= */
+
+            assistantLoaded: false,
+
+
+            /* =================================================
+               NOTICIAS
+               ================================================= */
+
+            newsList: [
+
+                {
+                    id: 1,
+
+                    category: "Corporativo",
+
+                    title:
+                        "Nueva estrategia corporativa 2027",
+
+                    description:
+                        "La organización presentó las principales líneas estratégicas para el próximo período.",
+
+                    date:
+                        "16 septiembre 2026"
+                },
+
+
+                {
+                    id: 2,
+
+                    category: "Personas",
+
+                    title:
+                        "Nuevo programa de beneficios",
+
+                    description:
+                        "Se incorporan nuevos convenios y beneficios para nuestros funcionarios.",
+
+                    date:
+                        "12 septiembre 2026"
+                },
+
+
+                {
+                    id: 3,
+
+                    category: "Tecnología",
+
+                    title:
+                        "Actualización de plataformas internas",
+
+                    description:
+                        "Durante este mes se realizarán mejoras en diferentes plataformas corporativas.",
+
+                    date:
+                        "10 septiembre 2026"
+                },
+
+
+                {
+                    id: 4,
+
+                    category: "Seguridad",
+
+                    title:
+                        "Campaña de seguridad de la información",
+
+                    description:
+                        "Recuerda las principales recomendaciones para proteger la información corporativa.",
+
+                    date:
+                        "5 septiembre 2026"
+                }
+
+            ]
+
+        };
+
+    },
+
+
+    /* =========================================================
+       COMPUTED
+       ========================================================= */
+
+    computed: {
+
+
+        initials() {
+
+            if (!this.userName) {
+
+                return "U";
+
+            }
+
+
+            const parts =
+                this.userName.split(" ");
+
+
+            return parts
+                .slice(0, 2)
+                .map(x => x.charAt(0))
+                .join("")
+                .toUpperCase();
+
+        }
+
+    },
+
+
+    /* =========================================================
+       METHODS
+       ========================================================= */
+
+    methods: {
+
+
+        /* =====================================================
+           SELECCIONAR USUARIO
+           ===================================================== */
+
+        selectUser() {
+
+
+            /*
+             * Si no hay usuario seleccionado
+             */
+
+            if (!this.selectedUser) {
+
+                this.loginInstitution = "";
+
+                this.loginUserId = "";
+
+                return;
+
+            }
+
+
+            /*
+             * Buscar usuario
+             */
+
+            const user =
+                this.predefinedUsers.find(
+                    u => u.id === this.selectedUser
+                );
+
+
+            if (!user) {
+
+                return;
+
+            }
+
+
+            /*
+             * Completar automáticamente
+             * los campos del Login.
+             */
+
+            this.loginInstitution =
+                user.institution;
+
+
+            this.loginUserId =
+                user.id;
+
+
+            /*
+             * Mostrar en consola
+             */
+
+            console.log(
+                "Usuario seleccionado:",
+                user.name
+            );
+
+            console.log(
+                "ID:",
+                user.id
+            );
+
+            console.log(
+                "Institución:",
+                user.institution
+            );
+
+        },
+
+
+        /* =====================================================
+           LOGIN
+           ===================================================== */
+
+        login() {
+
+
+            this.loginError = "";
+
+
+            /*
+             * Validar Institución
+             */
+
+            if (!this.loginInstitution.trim()) {
+
+                this.loginError =
+                    "Debe ingresar la Institución.";
+
+                return;
+
+            }
+
+
+            /*
+             * Validar ID
+             */
+
+            if (!this.loginUserId.trim()) {
+
+                this.loginError =
+                    "Debe ingresar el ID.";
+
+                return;
+
+            }
+
+
+            /*
+             * Buscar si corresponde a un usuario
+             * predefinido.
+             */
+
+            const user =
+                this.predefinedUsers.find(
+                    u =>
+                        u.id ===
+                            this.loginUserId.trim()
+                        &&
+                        u.institution.toLowerCase() ===
+                            this.loginInstitution
+                                .trim()
+                                .toLowerCase()
+                );
+
+
+            /*
+             * Si encontramos el usuario,
+             * utilizamos su nombre.
+             */
+
+            if (user) {
+
+                this.userName =
+                    user.name;
+
+            }
+
+            else {
+
+                /*
+                 * Permitir igualmente Login manual.
+                 */
+
+                this.userName =
+                    "Funcionario " +
+                    this.loginUserId.trim();
+
+            }
+
+
+            /*
+             * =================================================
+             * DATOS DE SESIÓN
+             * =================================================
+             */
+
+            this.institution =
+                this.loginInstitution
+                    .trim()
+                    .toLowerCase();
+
+
+            this.userId =
+                this.loginUserId
+                    .trim();
+
+
+            /*
+             * Activar sesión
+             */
+
+            this.loggedIn = true;
+
+
+            /*
+             * =================================================
+             * CARGAR ASISTENTE
+             * =================================================
+             */
+
+            this.$nextTick(() => {
+
+                this.loadAssistant();
+
+            });
+
+
+            /*
+             * Debug
+             */
+
+            console.log(
+                "======================================"
+            );
+
+            console.log(
+                "LOGIN EXITOSO"
+            );
+
+            console.log(
+                "Nombre:",
+                this.userName
+            );
+
+            console.log(
+                "Institución:",
+                this.institution
+            );
+
+            console.log(
+                "ID:",
+                this.userId
+            );
+
+            console.log(
+                "======================================"
+
+            );
+
+        },
+
+
+        /* =====================================================
+           CARGAR ASISTENTE IA
+           ===================================================== */
+
+        loadAssistant() {
+
+
+            if (this.assistantLoaded) {
+
+                return;
+
+            }
+
+
+            const container =
+                document.getElementById(
+                    "ia-assistant-container"
+                );
+
+
+            if (!container) {
+
+                console.error(
+                    "No existe el contenedor del asistente."
+                );
+
+                return;
+
+            }
+
+
+            /*
+             * Crear script
+             */
+
+            const script =
+                document.createElement("script");
+
+
+            script.src =
+                "http://192.168.1.19/scriptInstituciones/loader.js";
+
+
+            /*
+             * Modo ICON
+             */
+
+            script.setAttribute(
+                "data-mode",
+                "icon"
+            );
+
+
+            /*
+             * Texto
+             */
+
+            script.setAttribute(
+                "data-icon-text",
+                "Asistente IA para Nuevos funcionarios"
+            );
+
+
+            /*
+             * =================================================
+             * INSTITUTION
+             * =================================================
+             *
+             * Viene del campo Institución.
+             */
+
+            script.setAttribute(
+                "data-institution",
+                this.institution
+            );
+
+
+            /*
+             * =================================================
+             * SESSION
+             * =================================================
+             *
+             * Viene del campo ID.
+             */
+
+            script.setAttribute(
+                "data-session",
+                this.userId
+            );
+
+
+            /*
+             * Insertar loader
+             */
+
+            container.appendChild(script);
+
+
+            this.assistantLoaded = true;
+
+
+            /*
+             * Debug
+             */
+
+            console.log(
+                "======================================"
+            );
+
+            console.log(
+                "ASISTENTE IA"
+            );
+
+            console.log(
+                "data-institution =",
+                this.institution
+            );
+
+            console.log(
+                "data-session =",
+                this.userId
+            );
+
+            console.log(
+                "======================================"
+
+            );
+
+        },
+
+
+        /* =====================================================
+           LOGOUT
+           ===================================================== */
+
+        logout() {
+
+
+            /*
+             * Eliminar loader
+             */
+
+            const container =
+                document.getElementById(
+                    "ia-assistant-container"
+                );
+
+
+            if (container) {
+
+                container.innerHTML = "";
+
+            }
+
+
+            /*
+             * Limpiar sesión
+             */
+
+            this.loggedIn = false;
+
+            this.institution = "";
+
+            this.userId = "";
+
+            this.userName = "Funcionario";
+
+
+            this.loginInstitution = "";
+
+            this.loginUserId = "";
+
+            this.selectedUser = "";
+
+            this.assistantLoaded = false;
+
+            this.loginError = "";
+
+
+            console.log(
+                "Sesión cerrada."
+            );
+
+        },
+
+
+        /* =====================================================
+           NAVEGACIÓN
+           ===================================================== */
+
+        go(section) {
+
+            this.currentSection =
+                section;
+
+
+            window.scrollTo({
+
+                top: 0,
+
+                behavior: "smooth"
+
+            });
+
+        },
+
+
+        /* =====================================================
+           BUSCAR
+           ===================================================== */
+
+        search() {
+
+
+            if (!this.searchText.trim()) {
+
+                alert(
+                    "Ingrese un término de búsqueda."
+                );
+
+                return;
+
+            }
+
+
+            alert(
+                "Búsqueda ficticia de: " +
+                this.searchText
+            );
+
+        }
+
+    }
+
+}).mount("#app");
+
+
+</script>
+
+
+</body>
+
+</html>
+```
+
